@@ -9,7 +9,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class GameService {
@@ -40,5 +42,12 @@ public class GameService {
             throw new GameNotFoundException("Game not found with id: " + gameId);
         }
         gameRepository.deleteById(gameId);
+    }
+
+    public List<GameViewDTO> getAllGames() {
+        List<Game> games = gameRepository.findAll();
+        return games.stream()
+                .map(game -> modelMapper.map(game, GameViewDTO.class))
+                .collect(Collectors.toList());
     }
 }

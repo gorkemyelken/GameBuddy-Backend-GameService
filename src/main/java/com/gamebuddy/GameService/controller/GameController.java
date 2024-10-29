@@ -4,13 +4,14 @@ import com.gamebuddy.GameService.dto.GameCreateDTO;
 import com.gamebuddy.GameService.dto.GameViewDTO;
 import com.gamebuddy.GameService.service.GameService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/games")
@@ -43,9 +44,21 @@ public class GameController {
     })
     @GetMapping("/{id}")
     public ResponseEntity<GameViewDTO> getGameById(
-            @Parameter(description = "ID of the game to be retrieved") @PathVariable String id) {
+            @PathVariable String id) {
         GameViewDTO gameViewDTO = gameService.getGameById(id);
         return ResponseEntity.ok(gameViewDTO);
+    }
+
+    @Operation(summary = "Get all games",
+            description = "Retrieves a list of all games.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Games retrieved successfully"),
+            @ApiResponse(responseCode = "404", description = "No games found")
+    })
+    @GetMapping
+    public ResponseEntity<List<GameViewDTO>> getAllGames() {
+        List<GameViewDTO> games = gameService.getAllGames();
+        return ResponseEntity.ok(games);
     }
 
     @Operation(summary = "Delete game",
@@ -55,7 +68,7 @@ public class GameController {
             @ApiResponse(responseCode = "404", description = "Game not found")
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteGame(@Parameter(description = "ID of the game to be deleted") @PathVariable String id) {
+    public ResponseEntity<Void> deleteGame(@PathVariable String id) {
         gameService.deleteGame(id);
         return ResponseEntity.noContent().build();
     }
