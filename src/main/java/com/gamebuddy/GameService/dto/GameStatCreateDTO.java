@@ -6,5 +6,6 @@ import lombok.Data;
 public class GameStatCreateDTO {
     private String gameId;
     private String userId;
+    private String userName;
     private String gameRank;
 }

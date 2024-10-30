@@ -21,7 +21,11 @@ public class GameStat {
 
     private String gameId;
 
+    private String gameName;
+
     private String userId;
+
+    private String userName;
 
     private String gameRank;
 }

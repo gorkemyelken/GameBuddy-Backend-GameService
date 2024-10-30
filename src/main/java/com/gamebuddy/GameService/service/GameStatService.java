@@ -4,7 +4,9 @@ import com.gamebuddy.GameService.dto.GameStatCreateDTO;
 import com.gamebuddy.GameService.dto.GameStatUpdateDTO;
 import com.gamebuddy.GameService.dto.GameStatViewDTO;
 import com.gamebuddy.GameService.exception.results.*;
+import com.gamebuddy.GameService.model.Game;
 import com.gamebuddy.GameService.model.GameStat;
+import com.gamebuddy.GameService.repository.GameRepository;
 import com.gamebuddy.GameService.repository.GameStatRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,17 +19,23 @@ import java.util.stream.Collectors;
 @Service
 public class GameStatService {
     private final GameStatRepository gameStatRepository;
+
+    private final GameRepository gameRepository;
     private final ModelMapper modelMapper;
 
     @Autowired
-    public GameStatService(GameStatRepository gameStatRepository, ModelMapper modelMapper) {
+    public GameStatService(GameStatRepository gameStatRepository, GameRepository gameRepository, ModelMapper modelMapper) {
         this.gameStatRepository = gameStatRepository;
+        this.gameRepository = gameRepository;
         this.modelMapper = modelMapper;
     }
 
     public DataResult<GameStatViewDTO> createGameStat(GameStatCreateDTO gameStatCreateDTO) {
         GameStat gameStat = modelMapper.map(gameStatCreateDTO, GameStat.class);
         gameStat.setGameStatId(UUID.randomUUID().toString());
+        Game game = gameRepository.findByGameId(gameStatCreateDTO.getGameId());
+        gameStat.setGameName(game.getName());
+        gameStat.setUserName(gameStatCreateDTO.getUserName());
         gameStatRepository.save(gameStat);
         GameStatViewDTO gameStatViewDTO = modelMapper.map(gameStat, GameStatViewDTO.class);
         return new SuccessDataResult<>(gameStatViewDTO, "Game stat created successfully.");
