@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class GameStatViewDTO {
-    private String id;
+    private String gameStatId;
     private String gameId;
     private String userId;
     private String gameRank;

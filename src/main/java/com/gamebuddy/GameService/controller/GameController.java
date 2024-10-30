@@ -2,6 +2,8 @@ package com.gamebuddy.GameService.controller;
 
 import com.gamebuddy.GameService.dto.GameCreateDTO;
 import com.gamebuddy.GameService.dto.GameViewDTO;
+import com.gamebuddy.GameService.exception.results.DataResult;
+import com.gamebuddy.GameService.exception.results.Result;
 import com.gamebuddy.GameService.service.GameService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -31,9 +33,8 @@ public class GameController {
             @ApiResponse(responseCode = "400", description = "Invalid input data")
     })
     @PostMapping
-    public ResponseEntity<GameViewDTO> createGame(@RequestBody GameCreateDTO gameCreateDTO) {
-        GameViewDTO createdGame = gameService.createGame(gameCreateDTO);
-        return new ResponseEntity<>(createdGame, HttpStatus.CREATED);
+    public ResponseEntity<DataResult<GameViewDTO>> createGame(@RequestBody GameCreateDTO gameCreateDTO) {
+        return new ResponseEntity<>(gameService.createGame(gameCreateDTO), HttpStatus.CREATED);
     }
 
     @Operation(summary = "Get game by ID",
@@ -42,11 +43,10 @@ public class GameController {
             @ApiResponse(responseCode = "200", description = "Game found"),
             @ApiResponse(responseCode = "404", description = "Game not found")
     })
-    @GetMapping("/{id}")
-    public ResponseEntity<GameViewDTO> getGameById(
-            @PathVariable String id) {
-        GameViewDTO gameViewDTO = gameService.getGameById(id);
-        return ResponseEntity.ok(gameViewDTO);
+    @GetMapping("/{gameId}")
+    public ResponseEntity<DataResult<GameViewDTO>> getGameByGameId(
+            @PathVariable String gameId) {
+        return new ResponseEntity<>(gameService.getGameByGameId(gameId), HttpStatus.OK);
     }
 
     @Operation(summary = "Get all games",
@@ -56,9 +56,8 @@ public class GameController {
             @ApiResponse(responseCode = "404", description = "No games found")
     })
     @GetMapping
-    public ResponseEntity<List<GameViewDTO>> getAllGames() {
-        List<GameViewDTO> games = gameService.getAllGames();
-        return ResponseEntity.ok(games);
+    public ResponseEntity<DataResult<List<GameViewDTO>>> getAllGames() {
+        return new ResponseEntity<>(gameService.getAllGames(), HttpStatus.OK);
     }
 
     @Operation(summary = "Delete game",
@@ -67,9 +66,8 @@ public class GameController {
             @ApiResponse(responseCode = "204", description = "Game deleted successfully"),
             @ApiResponse(responseCode = "404", description = "Game not found")
     })
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteGame(@PathVariable String id) {
-        gameService.deleteGame(id);
-        return ResponseEntity.noContent().build();
+    @DeleteMapping("/{gameId}")
+    public ResponseEntity<Result> deleteGame(@PathVariable String gameId) {
+        return new ResponseEntity<>(gameService.deleteGame(gameId), HttpStatus.OK);
     }
 }

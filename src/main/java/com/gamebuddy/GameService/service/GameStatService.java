@@ -3,8 +3,7 @@ package com.gamebuddy.GameService.service;
 import com.gamebuddy.GameService.dto.GameStatCreateDTO;
 import com.gamebuddy.GameService.dto.GameStatUpdateDTO;
 import com.gamebuddy.GameService.dto.GameStatViewDTO;
-import com.gamebuddy.GameService.exception.GameNotFoundException;
-import com.gamebuddy.GameService.exception.GameStatNotFoundException;
+import com.gamebuddy.GameService.exception.results.*;
 import com.gamebuddy.GameService.model.GameStat;
 import com.gamebuddy.GameService.repository.GameStatRepository;
 import org.modelmapper.ModelMapper;
@@ -26,48 +25,62 @@ public class GameStatService {
         this.modelMapper = modelMapper;
     }
 
-    public GameStatViewDTO createGameStat(GameStatCreateDTO gameStatCreateDTO) {
+    public DataResult<GameStatViewDTO> createGameStat(GameStatCreateDTO gameStatCreateDTO) {
         GameStat gameStat = modelMapper.map(gameStatCreateDTO, GameStat.class);
-        gameStat.setId(UUID.randomUUID().toString());
+        gameStat.setGameStatId(UUID.randomUUID().toString());
         gameStatRepository.save(gameStat);
-        return modelMapper.map(gameStat, GameStatViewDTO.class);
+        GameStatViewDTO gameStatViewDTO = modelMapper.map(gameStat, GameStatViewDTO.class);
+        return new SuccessDataResult<>(gameStatViewDTO, "Game stat created successfully.");
     }
 
-    public GameStatViewDTO getGameStatById(String gameStatId) {
-        GameStat gameStat = gameStatRepository.findById(gameStatId)
-                .orElseThrow(() -> new GameStatNotFoundException("Game stat not found with id: " + gameStatId));
-        return modelMapper.map(gameStat, GameStatViewDTO.class);
+    public DataResult<GameStatViewDTO> getGameStatByGameStatId(String gameStatId) {
+        if(!checkIfGameStatIdExists(gameStatId)){
+            return new ErrorDataResult<>("GameStat not found.");
+        }
+        GameStat gameStat = gameStatRepository.findByGameStatId(gameStatId);
+        GameStatViewDTO gameStatViewDTO = modelMapper.map(gameStat, GameStatViewDTO.class);
+        return new SuccessDataResult<>(gameStatViewDTO, "Game stat found successfully.");
     }
 
-    public void deleteGameStat(String gameStatId) {
-        if (!gameStatRepository.existsById(gameStatId)) {
-            throw new GameNotFoundException("Game not found with id: " + gameStatId);
+    public Result deleteGameStat(String gameStatId) {
+        if(!checkIfGameStatIdExists(gameStatId)){
+            return new ErrorResult("Game stat not found.");
         }
         gameStatRepository.deleteById(gameStatId);
+        return new SuccessResult("Game stat deleted " + gameStatId);
     }
 
-    public GameStatViewDTO updateGameStat(String gameStatId, GameStatUpdateDTO gameStatUpdateDTO) {
-        GameStat gameStat = gameStatRepository.findById(gameStatId)
-                .orElseThrow(() -> new GameStatNotFoundException("GameStat not found with id: " + gameStatId));
+    public DataResult<GameStatViewDTO> updateGameStat(String gameStatId, GameStatUpdateDTO gameStatUpdateDTO) {
+        if(!checkIfGameStatIdExists(gameStatId)){
+            return new ErrorDataResult<>("Game stat not found.");
+        }
+        GameStat gameStat = gameStatRepository.findByGameStatId(gameStatId);
 
         if (gameStatUpdateDTO.getGameRank() != null) {
             gameStat.setGameRank(gameStatUpdateDTO.getGameRank());
         }
 
         gameStatRepository.save(gameStat);
-        return modelMapper.map(gameStat, GameStatViewDTO.class);
+        GameStatViewDTO gameStatViewDTO = modelMapper.map(gameStat, GameStatViewDTO.class);
+        return new SuccessDataResult<>(gameStatViewDTO, "Game stat updated successfully.");
     }
 
-    public List<GameStatViewDTO> getGameStatsByUserId(String userId) {
+    public DataResult<List<GameStatViewDTO>> getGameStatsByUserId(String userId) {
         List<GameStat> gameStats = gameStatRepository.findByUserId(userId);
-        return gameStats.stream()
+        List<GameStatViewDTO> gameStatViewDTOs =  gameStats.stream()
                 .map(gameStat -> modelMapper.map(gameStat, GameStatViewDTO.class))
                 .collect(Collectors.toList());
+        return new SuccessDataResult<>(gameStatViewDTOs, "Game stats retrieved by userId.");
     }
 
-    public List<GameStatViewDTO> getGameStatsByRanks(List<String> ranks) {
+    public DataResult<List<GameStatViewDTO>> getGameStatsByRanks(List<String> ranks) {
         List<GameStat> gameStats = gameStatRepository.findByGameRanks(ranks);
-        return gameStats.stream().map(gameStat -> modelMapper.map(gameStat, GameStatViewDTO.class))
+        List<GameStatViewDTO> gameStatViewDTOs = gameStats.stream().map(gameStat -> modelMapper.map(gameStat, GameStatViewDTO.class))
                 .collect(Collectors.toList());
+        return new SuccessDataResult<>(gameStatViewDTOs, "Game stats retrieved by ranks.");
+    }
+
+    private boolean checkIfGameStatIdExists(String gameStatId) {
+        return this.gameStatRepository.existsByGameStatId(gameStatId);
     }
 }

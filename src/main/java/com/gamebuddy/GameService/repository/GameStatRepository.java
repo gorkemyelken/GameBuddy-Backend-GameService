@@ -10,6 +10,10 @@ import java.util.List;
 public interface GameStatRepository extends JpaRepository<GameStat, String> {
     List<GameStat> findByUserId(String userId);
 
+    GameStat findByGameStatId(String gameStatId);
+
+    boolean existsByGameStatId(String gameStatId);
+
     @Query("SELECT g FROM GameStat g WHERE g.gameRank IN :ranks")
     List<GameStat> findByGameRanks(@Param("ranks") List<String> ranks);
 }

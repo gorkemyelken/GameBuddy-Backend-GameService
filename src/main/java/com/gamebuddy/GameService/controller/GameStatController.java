@@ -3,6 +3,8 @@ package com.gamebuddy.GameService.controller;
 import com.gamebuddy.GameService.dto.GameStatCreateDTO;
 import com.gamebuddy.GameService.dto.GameStatUpdateDTO;
 import com.gamebuddy.GameService.dto.GameStatViewDTO;
+import com.gamebuddy.GameService.exception.results.DataResult;
+import com.gamebuddy.GameService.exception.results.Result;
 import com.gamebuddy.GameService.service.GameStatService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -31,9 +33,8 @@ public class GameStatController {
             @ApiResponse(responseCode = "400", description = "Invalid input data")
     })
     @PostMapping("/create")
-    public ResponseEntity<GameStatViewDTO> createGameStat(@RequestBody GameStatCreateDTO gameStatCreateDTO) {
-        GameStatViewDTO createdGameStat = gameStatService.createGameStat(gameStatCreateDTO);
-        return new ResponseEntity<>(createdGameStat, HttpStatus.CREATED);
+    public ResponseEntity<DataResult<GameStatViewDTO>> createGameStat(@RequestBody GameStatCreateDTO gameStatCreateDTO) {
+        return new ResponseEntity<>(gameStatService.createGameStat(gameStatCreateDTO), HttpStatus.CREATED);
     }
 
     @Operation(summary = "Update gameStat details",
@@ -43,12 +44,11 @@ public class GameStatController {
             @ApiResponse(responseCode = "404", description = "GameStat not found"),
             @ApiResponse(responseCode = "400", description = "Invalid input data")
     })
-    @PutMapping("/{id}")
-    public ResponseEntity<GameStatViewDTO> updateGameStat(
-            @Parameter(description = "ID of the gameStat to be updated") @PathVariable String id,
+    @PutMapping("/{gameStatId}")
+    public ResponseEntity<DataResult<GameStatViewDTO>> updateGameStat(
+            @Parameter(description = "ID of the gameStat to be updated") @PathVariable String gameStatId,
             @RequestBody GameStatUpdateDTO gameStatUpdateDTO) {
-        GameStatViewDTO updatedGameStat = gameStatService.updateGameStat(id, gameStatUpdateDTO);
-        return ResponseEntity.ok(updatedGameStat);
+        return new ResponseEntity<>(gameStatService.updateGameStat(gameStatId, gameStatUpdateDTO), HttpStatus.OK);
     }
 
     @Operation(summary = "Get gameStat by ID",
@@ -57,11 +57,10 @@ public class GameStatController {
             @ApiResponse(responseCode = "200", description = "GameStat found"),
             @ApiResponse(responseCode = "404", description = "GameStat not found")
     })
-    @GetMapping("/{id}")
-    public ResponseEntity<GameStatViewDTO> getGameStatById(
-            @Parameter(description = "ID of the gameStat to be retrieved") @PathVariable String id) {
-        GameStatViewDTO gameStatViewDTO = gameStatService.getGameStatById(id);
-        return ResponseEntity.ok(gameStatViewDTO);
+    @GetMapping("/{gameStatId}")
+    public ResponseEntity<DataResult<GameStatViewDTO>> getGameStatByGameStatId(
+            @Parameter(description = "ID of the gameStat to be retrieved") @PathVariable String gameStatId) {
+        return new ResponseEntity<>(gameStatService.getGameStatByGameStatId(gameStatId), HttpStatus.OK);
     }
 
     @Operation(summary = "Delete a gameStat",
@@ -70,11 +69,9 @@ public class GameStatController {
             @ApiResponse(responseCode = "204", description = "GameStat deleted successfully"),
             @ApiResponse(responseCode = "404", description = "GameStat not found")
     })
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteGameStat(
-            @Parameter(description = "ID of the gameStat to be deleted") @PathVariable String id) {
-        gameStatService.deleteGameStat(id);
-        return ResponseEntity.noContent().build();
+    @DeleteMapping("/{gameStatId}")
+    public ResponseEntity<Result> deleteGameStat(@PathVariable String gameStatId) {
+        return new ResponseEntity<>(gameStatService.deleteGameStat(gameStatId), HttpStatus.OK);
     }
 
     @Operation(summary = "Get gameStats by User ID",
@@ -84,13 +81,9 @@ public class GameStatController {
             @ApiResponse(responseCode = "404", description = "GameStats not found for the user")
     })
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<GameStatViewDTO>> getGameStatsByUserId(
+    public ResponseEntity<DataResult<List<GameStatViewDTO>>> getGameStatsByUserId(
             @Parameter(description = "ID of the user whose gameStats are to be retrieved") @PathVariable String userId) {
-        List<GameStatViewDTO> gameStatsViewDTOs = gameStatService.getGameStatsByUserId(userId);
-        if (gameStatsViewDTOs.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(gameStatsViewDTOs);
+        return new ResponseEntity<>(gameStatService.getGameStatsByUserId(userId), HttpStatus.OK);
     }
 
     @Operation(summary = "Get gameStats by ranks",
@@ -100,8 +93,7 @@ public class GameStatController {
             @ApiResponse(responseCode = "404", description = "GameStats not found for the ranks")
     })
     @GetMapping("/by-ranks")
-    public ResponseEntity<List<GameStatViewDTO>> getGameStatsByRanks(@RequestParam List<String> ranks) {
-        List<GameStatViewDTO> gameStatsViewDTOs = gameStatService.getGameStatsByRanks(ranks);
-        return ResponseEntity.ok(gameStatsViewDTOs);
+    public ResponseEntity<DataResult<List<GameStatViewDTO>>> getGameStatsByRanks(@RequestParam List<String> ranks) {
+        return new ResponseEntity<>(gameStatService.getGameStatsByRanks(ranks), HttpStatus.OK);
     }
 }

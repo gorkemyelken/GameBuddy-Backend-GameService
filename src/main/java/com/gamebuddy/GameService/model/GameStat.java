@@ -17,7 +17,7 @@ public class GameStat {
 
     @Id
     @Column(updatable = false, nullable = false)
-    private String id;
+    private String gameStatId;
 
     private String gameId;
 

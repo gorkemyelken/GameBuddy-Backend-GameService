@@ -20,7 +20,7 @@ public class Game {
 
     @Id
     @Column(updatable = false, nullable = false)
-    private String id;
+    private String gameId;
 
     private String name;
 
