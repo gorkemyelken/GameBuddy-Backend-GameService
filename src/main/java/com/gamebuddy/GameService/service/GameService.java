@@ -51,7 +51,7 @@ public class GameService {
     }
 
     public DataResult<List<GameViewDTO>> getAllGames() {
-        Sort sort = Sort.by(Sort.Direction.DESC,"name");
+        Sort sort = Sort.by(Sort.Direction.ASC,"name");
         List<Game> games = gameRepository.findAll(sort);
         if(games.isEmpty()){
             return new ErrorDataResult<>("Games not found.");
