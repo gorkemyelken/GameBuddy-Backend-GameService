@@ -7,6 +7,7 @@ import com.gamebuddy.GameService.model.Game;
 import com.gamebuddy.GameService.repository.GameRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -50,7 +51,8 @@ public class GameService {
     }
 
     public DataResult<List<GameViewDTO>> getAllGames() {
-        List<Game> games = gameRepository.findAll();
+        Sort sort = Sort.by(Sort.Direction.DESC,"name");
+        List<Game> games = gameRepository.findAll(sort);
         if(games.isEmpty()){
             return new ErrorDataResult<>("Games not found.");
         }
